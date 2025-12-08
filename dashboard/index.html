@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IoT Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+        #value-box {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>📊 IoT Dashboard</h2>
+
+<div id="value-box">Latest Value: ...</div>
+
+<canvas id="chart" width="600" height="300"></canvas>
+
+<script>
+
+let chartCtx = document.getElementById("chart").getContext("2d");
+
+let chart = new Chart(chartCtx, {
+    type: "line",
+    data: {
+        labels: [],
+        datasets: [{
+            label: "Sensor Value",
+            data: [],
+            borderWidth: 2
+        }]
+    }
+});
+
+async function fetchLatest() {
+    try {
+        let res = await fetch("http://localhost:3003/analytics/latest");
+        let data = await res.json();
+
+        if (!data || !data.value) return;
+
+        document.getElementById("value-box").innerText =
+            "Latest Value: " + data.value;
+
+        let now = new Date().toLocaleTimeString();
+
+        chart.data.labels.push(now);
+        chart.data.datasets[0].data.push(data.value);
+        chart.update();
+
+    } catch (err) {
+        console.log("API Error:", err);
+    }
+}
+
+// Update mỗi 2 giây
+setInterval(fetchLatest, 2000);
+
+</script>
+
+</body>
+</html>

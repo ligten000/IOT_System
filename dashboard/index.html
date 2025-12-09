@@ -41,7 +41,7 @@ let chart = new Chart(chartCtx, {
 
 async function fetchLatest() {
     try {
-        let res = await fetch("http://localhost:3003/analytics/latest");
+        let res = await fetch("http://16.176.195.2:3003/analytics/latest");
         let data = await res.json();
 
         if (!data || !data.value) return;

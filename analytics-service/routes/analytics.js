@@ -1,7 +1,13 @@
-const express = require('express');
-const router = express.Router();
-const analyticsController = require('../controllers/analyticsController');
+const mongoose = require('mongoose');
 
-router.get('/latest', analyticsController.getLatest);
+const AnalyticsSchema = new mongoose.Schema({
+    deviceId: String,
+    temperature: Number,
+    humidity: Number,
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+});
 
-module.exports = router;
+module.exports = mongoose.model('Analytics', AnalyticsSchema);

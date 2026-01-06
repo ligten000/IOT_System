@@ -1,4 +1,5 @@
 const amqp = require('amqplib');
+const SensorData = require('../models/SensorData');
 
 let latestData = {
     deviceId: "none",
@@ -19,11 +20,18 @@ async function startConsumer() {
 
         console.log("Analytics Service waiting for messages...");
 
-        channel.consume("sensor_data", msg => {
+        channel.consume("sensor_data", async (msg) => {
             const json = JSON.parse(msg.content.toString());
+
             latestData = json;
 
-            console.log("Analytics received:", json);
+            // 🔥 LƯU VÀO MONGODB
+            await SensorData.create({
+                deviceId: json.deviceId,
+                value: json.value
+            });
+
+            console.log("Analytics received & saved:", json);
 
             channel.ack(msg);
         });

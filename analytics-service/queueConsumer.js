@@ -7,19 +7,30 @@ let latestData = {
 };
 
 async function startConsumer() {
-    const connection = await amqp.connect("amqp://localhost");
-    const channel = await connection.createChannel();
+    try {
+        const RABBIT_URL = process.env.RABBIT_URL;
 
-    await channel.assertQueue("sensor_data");
-    console.log("Analytics Service waiting for messages...");
+        console.log("Connecting to RabbitMQ:", RABBIT_URL);
 
-    channel.consume("sensor_data", msg => {
-        const json = JSON.parse(msg.content.toString());
-        latestData = json;
+        const connection = await amqp.connect(RABBIT_URL);
+        const channel = await connection.createChannel();
 
-        console.log("Analytics received:", json);
-        channel.ack(msg);
-    });
+        await channel.assertQueue("sensor_data");
+
+        console.log("Analytics Service waiting for messages...");
+
+        channel.consume("sensor_data", msg => {
+            const json = JSON.parse(msg.content.toString());
+            latestData = json;
+
+            console.log("Analytics received:", json);
+
+            channel.ack(msg);
+        });
+
+    } catch (err) {
+        console.error("Analytics RabbitMQ error:", err);
+    }
 }
 
 startConsumer();

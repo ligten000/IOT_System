@@ -1,10 +1,12 @@
 const express = require('express');
 const cors = require('cors');
-
+const connectMongo = require('./db/mongo');
 const analyticsRoutes = require('./routes/analytics');
 
 const app = express();
 app.use(cors());
+
+connectMongo();
 
 app.use('/analytics', analyticsRoutes);
 
